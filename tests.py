@@ -62,7 +62,7 @@ class TestSequenceFunctions(unittest.TestCase):
         word_b = self.vocab.vocab_lookup("b")
         word_c = self.vocab.vocab_lookup("c")
 
-        self.assertAlmostEqual(self.vocab.term_freq(word_a), 0.66666666)
+        self.assertAlmostEqual(self.vocab.term_freq(word_a), 0.66666666)#Problem
         self.assertAlmostEqual(self.vocab.term_freq(word_b), 0.33333333)
         self.assertAlmostEqual(self.vocab.term_freq(word_c), 0.33333333)
 

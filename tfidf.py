@@ -96,7 +96,7 @@ class TfIdf:
         text -- The raw string containing a document
         """
         self._wordsPerDoc = {}#reset wordsPerDoc since it is new doc
-
+        self._total_docs +=1
         
 
         for word in self.tokenize(text):#tokenize is returning the hashed vocab ID
@@ -152,8 +152,13 @@ class TfIdf:
         if word in self._vocab.values() and len(self._docs) == 1:
             #RETURN THE FREQUENCY NOT THE COUNT
              #tf = | times w appears in doc|/|num tokens in doc|
-            
-            return float(abs(self._docs[0][word])/abs(len(self._docs[0].keys())))
+            timesW = abs(self._docs[0][word])
+            numTokens = 0
+            for key in self._docs[0].keys():
+                numTokens += self._docs[0][key]
+            #numTokens = abs(len(self._docs[0].keys()))
+
+            return float(timesW/numTokens)
         
         return 0.0
 
@@ -168,9 +173,20 @@ class TfIdf:
         """
 
         #need number of documents that contain w, code into CW?
+
+        #idf = numDocuments/number of documents that contain w
         if word in self._vocab.values():
-            return log10(abs(self._total_docs)/self._countWords[word][1])#can't refer to countWords using hashed value
-        
+            numDocuments = abs(self._total_docs)
+            numDocsContainingW = 0
+            for i in range(len(self._docs)):
+                #on second time around, word code is not in docs[1], must handle
+                if word not in self._docs[i].keys():
+                    continue
+                if float(abs(self._docs[i][word])/abs(len(self._docs[i].keys()))) != 0:
+                    numDocsContainingW += 1
+
+            return log10(numDocuments/numDocsContainingW)#can't refer to countWords using hashed value
+        #self._countWords[word][1]
         return 0.0
 
     def vocab_lookup(self, word: str) -> int:
