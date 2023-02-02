@@ -237,7 +237,7 @@ if __name__ == "__main__":
                            type=str, default='data/',
                            required=False)
     argparser.add_argument("--train_dataset", help="Dataset for training",
-                           type=str, default='obits.train.json',
+                           type=str, default='obits.json',#used to be obits.train.json
                            required=False)
     argparser.add_argument("--test_dataset", help="Dataset for test",
                            type=str, default='sparck-jones.txt',
@@ -260,8 +260,8 @@ if __name__ == "__main__":
         for ii in data:
             vocab.add_document(data[ii])
 
-    with open(os.path.join(args.root_dir, args.train_dataset)) as infile:
-        data = json.load(infile)["obit"]
-        vector = vocab.doc_tfidf(data['0'])
+    with open(os.path.join(args.root_dir, args.test_dataset), encoding = 'utf-8') as infile:#train_dataset
+        data = infile.read()#json.load(infile)["obit"]
+        vector = vocab.doc_tfidf(data)#['0'])
         for word, tfidf in sorted(vector.items(), key=lambda kv: kv[1], reverse=True)[:50]:
             print("%s:%i\t%f" % (word[1], word[0], tfidf))
