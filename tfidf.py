@@ -39,6 +39,12 @@ class TfIdf:
 
         # Add your code here!
 
+        self._countWords = {}#keeps track of all words in all documents
+        self._wordsPerDoc = {}#keeps track of all words in every document
+        self._docs = []
+
+
+
     def train_seen(self, word: str, count: int=1):
         """Tells the language model that a word has been seen @count times.  This
         will be used to build the final vocabulary.
@@ -56,15 +62,58 @@ class TfIdf:
 
         # Add your code here!
 
+        #check to see if word is alreadu in CW dict, update number
+        countInCW = 0
+        numDocsIn = 0
+        if word in self._countWords:
+            countInCW += self._countWords[word][0]
+            numDocsIn += self._countWords[word][1]
+
+        
+        #adding one or whatever the count is set to in the argument
+        countInCW += count
+        #adding one to the numDocs a given word is in
+        numDocsIn += 1
+
+        #set the # of docs value equal to 1 since we haven't seen this word
+        self._countWords[word] = (countInCW,numDocsIn)
+
+
+        
+
+        
+
+        
+        
+
+
+
+
     def add_document(self, text: str):
         """
         Tokenize a piece of text and add the entries to the class's counts.
 
         text -- The raw string containing a document
         """
+        self._wordsPerDoc = {}#reset wordsPerDoc since it is new doc
 
-        for word in self.tokenize(text):
-            None
+        
+
+        for word in self.tokenize(text):#tokenize is returning the hashed vocab ID
+            #need the string form of the word, if word in vocab then it returns its ID
+            
+            #adjust for the case in which tokenize returns the string c
+            countWPD = 0
+            if word in self._wordsPerDoc:
+                countWPD = self._wordsPerDoc[word]
+
+            countWPD += 1
+            self._wordsPerDoc[word] = countWPD
+
+            #self.train_seen(word)#don't use train seen, vocab is already finalized
+        self._docs.append(self._wordsPerDoc)
+
+            
 
     def tokenize(self, sent: str) -> Iterable[int]:
         """Return a generator over tokens in the sentence; return the vocab
@@ -98,8 +147,16 @@ class TfIdf:
 
         word -- The integer lookup of the word.
         """
+        #FIX THIS
 
+        if word in self._vocab.values() and len(self._docs) == 1:
+            #RETURN THE FREQUENCY NOT THE COUNT
+             #tf = | times w appears in doc|/|num tokens in doc|
+            
+            return float(abs(self._docs[0][word])/abs(len(self._docs[0].keys())))
+        
         return 0.0
+
 
     def inv_docfreq(self, word: int) -> float:
         """Compute the inverse document frequency of a word.  Return 0.0 if
@@ -110,6 +167,10 @@ class TfIdf:
 
         """
 
+        #need number of documents that contain w, code into CW?
+        if word in self._vocab.values():
+            return log10(abs(self._total_docs)/self._countWords[word][1])#can't refer to countWords using hashed value
+        
         return 0.0
 
     def vocab_lookup(self, word: str) -> int:
@@ -129,7 +190,7 @@ class TfIdf:
         if word in self._vocab:
             return self._vocab[word]
         else:
-            return self._vocab[kUNK]
+            return self._vocab[kUNK]# this is where we are getting tripped up
 
     def finalize(self):
         """
@@ -140,6 +201,17 @@ class TfIdf:
         # Add code to generate the vocabulary that the vocab lookup
         # function can use!
 
+
+        for word in self._countWords.keys():
+            if self._countWords[word][0] >= self._unk_cutoff:
+                self._vocab[word] = hash(word)
+                #instructions say to map word to ID number, does this imply to not use count as value?
+                #maybe hash the string?vself._countWords[word][0]
+            else:
+                self._vocab[kUNK] = hash(kUNK)
+
+        if kUNK not in self._vocab.keys():
+            self._vocab[kUNK] = hash(kUNK)
         self._vocab_final = True
 
 if __name__ == "__main__":
